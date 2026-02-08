@@ -1,0 +1,4 @@
+This is a sample document for the Tamper-Proof Data Sharing Platform.
+It contains some sensitive data that should be encrypted before storage.
+Only the hash of this file will be stored on the blockchain.
+If you modify even one character, the verification will fail!
