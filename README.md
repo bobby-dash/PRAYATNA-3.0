@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Tamper-Proof Data Sharing Platform
 
 A secure, blockchain-backed document sharing platform ensuring data integrity using Ethereum and IPFS.
@@ -66,3 +67,6 @@ npm run dev
 - **Backend**: Node.js, Express, MongoDB
 - **Frontend**: React, Vite, Tailwind-like CSS
 - **Storage**: IPFS (Pinata)
+=======
+# PRAYATNA-3.0
+>>>>>>> 5fe22cbd1562f8a71cd9ebde93d97f423db3e8ce
