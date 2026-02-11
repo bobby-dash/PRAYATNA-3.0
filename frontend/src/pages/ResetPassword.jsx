@@ -27,42 +27,46 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="auth-container fade-in">
-            <div className="glass-panel auth-card">
-                <div className="auth-header">
-                    <h2>New Password</h2>
-                    <p className="text-secondary">Set a new secure password</p>
+        <div className="container fade-in" style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+            <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+                <div className="mb-8 text-center">
+                    <h2 style={{ marginBottom: '0.5rem' }}>New Password</h2>
+                    <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Set a new secure password</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label>New Password</label>
-                        <div className="input-wrapper">
-                            <Lock size={20} className="input-icon" />
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>New Password</label>
+                        <div style={{ position: 'relative' }}>
+                            <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
                             <input
                                 type="password"
+                                className="input-field"
                                 placeholder="New Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                style={{ paddingLeft: '3rem' }}
                             />
                         </div>
                     </div>
-                    <div className="form-group">
-                        <label>Confirm Password</label>
-                        <div className="input-wrapper">
-                            <Lock size={20} className="input-icon" />
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Confirm Password</label>
+                        <div style={{ position: 'relative' }}>
+                            <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
                             <input
                                 type="password"
+                                className="input-field"
                                 placeholder="Confirm Password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
+                                style={{ paddingLeft: '3rem' }}
                             />
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-primary auth-btn">
+                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.8rem' }}>
                         Reset Password
                     </button>
                 </form>

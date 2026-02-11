@@ -112,7 +112,7 @@ const Upload = () => {
                     </div>
                 )}
 
-                <div className="flex-center gap-2 mb-4" style={{ background: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '8px', display: 'inline-flex', width: '100%' }}>
+                <div className="flex-center gap-2 mb-4" style={{ display: 'inline-flex', width: '100%' }}>
                     <button
                         className={mode === 'file' ? 'btn-primary' : 'btn-secondary'}
                         style={{ flex: 1 }}

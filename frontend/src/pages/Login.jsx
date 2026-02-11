@@ -45,7 +45,10 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>Login</button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-0.5rem' }}>
+                        <a href="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--accent)', textDecoration: 'none' }}>Forgot Password?</a>
+                    </div>
+                    <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem' }}>Login</button>
                     <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-secondary)' }}>
                         Don't have an account? <a href="/register" style={{ color: 'var(--accent)' }}>Register</a>
                     </p>

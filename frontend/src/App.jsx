@@ -1,7 +1,8 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -19,8 +20,9 @@ function App() {
   const location = useLocation();
 
   // Define public routes where Navbar should appear
-  const publicRoutes = ['/', '/login', '/register'];
-  const isPublic = publicRoutes.includes(location.pathname);
+  const publicRoutes = ['/', '/login', '/register', '/forgot-password'];
+  const isPasswordReset = location.pathname.startsWith('/reset-password');
+  const isPublic = publicRoutes.includes(location.pathname) || isPasswordReset;
 
   return (
     <ThemeProvider>
@@ -32,6 +34,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
             </Routes>
           </div>
         ) : (
@@ -39,13 +43,12 @@ function App() {
             <Sidebar />
             <main className="main-content fade-in">
               <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/upload" element={<Upload />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/requests" element={<Requests />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+                <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+                <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </main>
           </>

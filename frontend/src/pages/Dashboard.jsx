@@ -8,7 +8,8 @@ import {
     HardDrive,
     Activity,
     Plus,
-    Search
+    Search,
+    Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -22,6 +23,7 @@ const Dashboard = () => {
     const [sharedDocs, setSharedDocs] = useState([]);
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const { user } = useContext(AuthContext);
     const { account } = useContext(WalletContext);
 
@@ -181,11 +183,24 @@ const Dashboard = () => {
             <div className="flex-between mb-4 fade-in" style={{ animationDelay: '0.2s' }}>
                 <h3>Recent Uploads</h3>
                 <div className="flex-center gap-2">
-                    <Link to="/search">
-                        <button className="btn-secondary flex-center gap-2">
-                            <Search size={18} /> Find Docs
-                        </button>
-                    </Link>
+                    <div style={{ position: 'relative' }}>
+                        <Filter size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none', zIndex: 1 }} />
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="input-field"
+                            style={{ paddingLeft: '2.5rem', paddingRight: '1rem', width: '180px', cursor: 'pointer' }}
+                        >
+                            <option value="All">All Categories</option>
+                            <option value="General">General</option>
+                            <option value="Medical">Medical</option>
+                            <option value="Legal">Legal</option>
+                            <option value="Financial">Financial</option>
+                            <option value="Educational">Educational</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
                     <Link to="/upload">
                         <button className="btn-primary flex-center gap-2">
                             <Plus size={18} /> Upload New
@@ -196,17 +211,19 @@ const Dashboard = () => {
 
             {/* My Uploads Grid */}
             {myDocs.length > 0 ? (
-                <div className="grid grid-cols-3 mb-8 fade-in" style={{ animationDelay: '0.3s' }}>
-                    {myDocs.map(doc => (
-                        <FileCard
-                            key={doc._id}
-                            file={doc}
-                            isShared={false}
-                            onDownload={handleDownload}
-                            onShare={openShareModal}
-                            onDelete={handleDeleteFile}
-                        />
-                    ))}
+                <div className="grid mb-8 fade-in" style={{ animationDelay: '0.3s' }}>
+                    {myDocs
+                        .filter(doc => selectedCategory === 'All' || doc.category === selectedCategory)
+                        .map(doc => (
+                            <FileCard
+                                key={doc._id}
+                                file={doc}
+                                isShared={false}
+                                onDownload={handleDownload}
+                                onShare={openShareModal}
+                                onDelete={handleDeleteFile}
+                            />
+                        ))}
                 </div>
             ) : (
                 <div className="glass-panel text-center mb-8 fade-in" style={{ padding: '3rem' }}>
@@ -218,15 +235,18 @@ const Dashboard = () => {
             {sharedDocs.length > 0 && (
                 <>
                     <h3 className="mb-4 fade-in" style={{ animationDelay: '0.4s' }}>Shared with Me</h3>
-                    <div className="grid grid-cols-3 mb-8 fade-in" style={{ animationDelay: '0.5s' }}>
-                        {sharedDocs.map(doc => (
-                            <FileCard
-                                key={doc._id || doc.requestId}
-                                file={doc}
-                                isShared={true}
-                                onDownload={handleDownload}
-                            />
-                        ))}
+                    <div className="grid mb-8 fade-in" style={{ animationDelay: '0.5s' }}>
+                        {sharedDocs
+                            .filter(doc => selectedCategory === 'All' || doc.category === selectedCategory)
+                            .map(doc => (
+                                <FileCard
+                                    key={doc._id || doc.requestId}
+                                    file={doc}
+                                    isShared={true}
+                                    onDownload={handleDownload}
+                                    onDelete={() => handleRemoveShared(doc.requestId)}
+                                />
+                            ))}
                     </div>
                 </>
             )}

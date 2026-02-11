@@ -23,35 +23,37 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="auth-container fade-in">
-            <div className="glass-panel auth-card">
-                <div className="auth-header">
-                    <h2>Reset Password</h2>
-                    <p className="text-secondary">Enter your email to receive a reset link</p>
+        <div className="container fade-in" style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+            <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+                <div className="mb-8 text-center">
+                    <h2 style={{ marginBottom: '0.5rem' }}>Reset Password</h2>
+                    <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Enter your email to receive a reset link</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label>Email Address</label>
-                        <div className="input-wrapper">
-                            <Mail size={20} className="input-icon" />
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Email Address</label>
+                        <div style={{ position: 'relative' }}>
+                            <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
                             <input
                                 type="email"
+                                className="input-field"
                                 placeholder="name@company.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                style={{ paddingLeft: '3rem' }}
                             />
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-primary auth-btn" disabled={loading}>
+                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.8rem' }} disabled={loading}>
                         {loading ? 'Sending...' : 'Send Reset Link'}
                     </button>
 
-                    <div className="auth-footer">
-                        <Link to="/login" className="text-link flex-center gap-2">
-                            <ArrowLeft size={14} /> Back to Login
+                    <div className="text-center">
+                        <Link to="/login" className="text-secondary hover:text-white flex-center gap-2" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
+                            <ArrowLeft size={16} /> Back to Login
                         </Link>
                     </div>
                 </form>

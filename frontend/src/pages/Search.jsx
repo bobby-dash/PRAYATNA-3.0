@@ -55,7 +55,7 @@ const Search = () => {
 
             <div className="grid">
                 {results.map(doc => (
-                    <div key={doc._id} className="glass-panel card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div key={doc._id} className="glass-panel card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.8rem', borderRadius: '12px' }}>
                                 <FileText color="var(--accent)" size={24} />
@@ -65,16 +65,17 @@ const Search = () => {
                             </span>
                         </div>
 
-                        <div>
+                        <div style={{ paddingLeft: '0.5rem' }}>
                             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{doc.title}</h3>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                 {doc.description || "No description provided."}
                             </p>
                         </div>
 
-                        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                By: {doc.owner?.username || 'Unknown'}
+                        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <span style={{ opacity: 0.7 }}>By:</span>
+                                <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{doc.owner?.username || 'Unknown'}</span>
                             </div>
                             <button
                                 className="btn-secondary"

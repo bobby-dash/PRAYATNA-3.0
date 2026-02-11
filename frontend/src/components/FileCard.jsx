@@ -28,37 +28,51 @@ const FileCard = ({ file, isShared, onDownload, onShare }) => {
                 <div className="file-icon-wrapper">
                     <FileText size={24} color="var(--accent)" />
                 </div>
-                {!isShared && (
-                    <div className="menu-container" ref={menuRef}>
-                        <button
-                            className="more-btn"
-                            onClick={() => setShowMenu(!showMenu)}
-                        >
-                            <MoreVertical size={16} />
-                        </button>
-                        {showMenu && (
-                            <div className="dropdown-menu">
-                                <button onClick={() => {
-                                    setShowMenu(false);
-                                    if (onShare) onShare(file);
-                                }}>
-                                    <Share2 size={14} /> Share
-                                </button>
-                                <button className="delete-option" onClick={() => {
-                                    setShowMenu(false);
-                                    if (file.onDelete) file.onDelete(file._id);
-                                }}>
-                                    <Trash2 size={14} /> Delete
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {file.category && (
+                        <span style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-secondary)',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '4px',
+                            background: 'rgba(139, 92, 246, 0.1)',
+                            border: '1px solid rgba(139, 92, 246, 0.2)'
+                        }}>
+                            {file.category}
+                        </span>
+                    )}
+                    {!isShared && (
+                        <div className="menu-container" ref={menuRef}>
+                            <button
+                                className="more-btn"
+                                onClick={() => setShowMenu(!showMenu)}
+                            >
+                                <MoreVertical size={16} />
+                            </button>
+                            {showMenu && (
+                                <div className="dropdown-menu">
+                                    <button onClick={() => {
+                                        setShowMenu(false);
+                                        if (onShare) onShare(file);
+                                    }}>
+                                        <Share2 size={14} /> Share
+                                    </button>
+                                    <button className="delete-option" onClick={() => {
+                                        setShowMenu(false);
+                                        if (file.onDelete) file.onDelete(file._id);
+                                    }}>
+                                        <Trash2 size={14} /> Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="file-body">
-                <h4 className="file-name" title={file.fileName || file.title}>
-                    {file.fileName || file.title}
+                <h4 className="file-name" title={file.title || file.fileName}>
+                    {file.title || file.fileName}
                 </h4>
                 <div className="file-meta">
                     <div className="meta-item">

@@ -82,7 +82,7 @@ const Requests = () => {
                     const isOffer = req.requestType === 'offer';
 
                     return (
-                        <div key={req._id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div key={req._id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                     <File size={20} color="var(--accent)" />
@@ -102,7 +102,7 @@ const Requests = () => {
                                 </span>
                             </div>
 
-                            <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', paddingLeft: 'calc(20px + 0.8rem)' }}>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', paddingLeft: '0.5rem' }}>
                                 {isIncoming ? (
                                     <>
                                         {isOffer ? (
@@ -126,7 +126,7 @@ const Requests = () => {
                                 )}
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 'auto', paddingLeft: 'calc(20px + 0.8rem)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 'auto', paddingLeft: '0.5rem' }}>
                                 <Clock size={14} style={{ marginRight: '0.4rem' }} />
                                 {new Date(req.requestDate).toLocaleDateString()}
                             </div>
@@ -172,12 +172,12 @@ const Requests = () => {
             <h2 style={{ marginBottom: '2rem' }}>Access Requests</h2>
 
             <div style={{ marginBottom: '3rem' }}>
-                <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Incoming Requests</h3>
+                <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>Incoming Requests</h3>
                 <RequestList list={requests.incoming} isIncoming={true} />
             </div>
 
             <div>
-                <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Outgoing Requests</h3>
+                <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>Outgoing Requests</h3>
                 <RequestList list={requests.outgoing} isIncoming={false} />
             </div>
         </div>
