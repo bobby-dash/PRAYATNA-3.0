@@ -75,7 +75,11 @@ contract DocumentRegistry {
     /**
      * @dev Verify if a document exists and return its details
      * @param _fileHash The SHA-256 hash to verify
-     * @return ipfsHash, owner, timestamp, name, isVerified
+     * @return ipfsHash IPFS CID of the file
+     * @return owner Address of the owner
+     * @return timestamp Upload timestamp
+     * @return name Name of the file
+     * @return isVerified Verification status
      */
     function verifyDocument(string memory _fileHash) public view returns (
         string memory ipfsHash, 

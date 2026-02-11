@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { WalletContext } from '../context/WalletContext';
 import axios from 'axios';
-import { Upload as UploadIcon, File as FileIcon, Loader, CheckCircle, FileText } from 'lucide-react';
+import { Upload as UploadIcon, File as FileIcon, Loader, CheckCircle, FileText, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -87,10 +87,23 @@ const Upload = () => {
 
     return (
         <div className="container fade-in" style={{ marginTop: '2rem', maxWidth: '800px' }}>
-            <div className="glass-panel">
-                <div className="text-center mb-4">
-                    <h2>Secure Upload</h2>
-                    <p className="text-secondary">Store your sensitive documents or notes with encryption on IPFS & Blockchain.</p>
+            <div className="glass-panel" style={{ padding: '2.5rem' }}>
+                <div className="text-center mb-8">
+                    <div className="flex-center mb-4">
+                        <div style={{
+                            padding: '1rem',
+                            borderRadius: '50%',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)'
+                        }}>
+                            <Shield size={32} color="var(--accent)" />
+                        </div>
+                    </div>
+                    <h1 className="text-gradient mb-2" style={{ fontSize: '2.5rem' }}>Secure Upload</h1>
+                    <p className="text-secondary" style={{ maxWidth: '400px', margin: '0 auto' }}>
+                        Store your sensitive documents with military-grade encryption on IPFS & Blockchain.
+                    </p>
                 </div>
 
                 {!account && (
@@ -130,28 +143,19 @@ const Upload = () => {
 
                 {mode === 'file' ? (
                     <div
-                        style={{
-                            border: '2px dashed var(--border)',
-                            borderRadius: '12px',
-                            padding: '3rem',
-                            marginBottom: '1.5rem',
-                            cursor: 'pointer',
-                            transition: 'border-color 0.2s',
-                            textAlign: 'center'
-                        }}
+                        className="upload-dropzone"
                         onClick={() => document.getElementById('fileInput').click()}
-                        onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent)'; }}
-                        onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--border)'; }}
+                        onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('drag-active'); }}
+                        onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('drag-active'); }}
                         onDrop={(e) => {
                             e.preventDefault();
-                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.classList.remove('drag-active');
                             if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
                         }}
                     >
                         <input
                             type="file"
                             id="fileInput"
-                            style={{ display: 'none' }}
                             onChange={handleFileChange}
                         />
 
@@ -164,7 +168,7 @@ const Upload = () => {
                         ) : (
                             <div className="flex-col flex-center gap-2">
                                 <UploadIcon size={48} color="var(--text-secondary)" />
-                                <p className="text-secondary">Click or Drag file to upload</p>
+                                <p className="text-secondary">Click to browse or drag file here</p>
                             </div>
                         )}
                     </div>
@@ -181,7 +185,7 @@ const Upload = () => {
                     </div>
                 )}
 
-                <div className="flex-between gap-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="form-group" style={{ marginBottom: 0 }}>
                         <label className="form-label">Category</label>
                         <select

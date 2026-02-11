@@ -5,7 +5,7 @@ const AccessLogSchema = new mongoose.Schema({
     document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: true },
     action: {
         type: String,
-        enum: ['VIEW_METADATA', 'DOWNLOAD', 'REQUEST_ACCESS', 'APPROVE_ACCESS', 'REJECT_ACCESS'],
+        enum: ['VIEW_METADATA', 'DOWNLOAD', 'REQUEST_ACCESS', 'APPROVE_ACCESS', 'REJECT_ACCESS', 'OFFER_ACCESS'],
         required: true
     },
     timestamp: { type: Date, default: Date.now },

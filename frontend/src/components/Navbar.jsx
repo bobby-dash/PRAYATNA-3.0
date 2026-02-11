@@ -91,9 +91,7 @@ const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/verify" className="flex-center gap-1" style={linkStyle('/verify')}>
-                                <Search size={18} /> Verify
-                            </Link>
+
                             <Link to="/login" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Login</Link>
                             <Link to="/register" className="btn-primary">Get Started</Link>
                         </>

@@ -9,13 +9,12 @@ const Home = () => {
                 Tamper-Proof Data Sharing <br /> on the Blockchain
             </h1>
             <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto 3rem' }}>
-                Securely upload, share, and verify documents with the power of Ethereum and IPFS.
+                Securely upload and share documents with the power of Ethereum and IPFS.
                 Immutable records ensure your data integrity is never compromised.
             </p>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '5rem' }}>
                 <Link to="/register" className="btn-primary" style={{ fontSize: '1.1rem', padding: '1rem 2rem', textDecoration: 'none' }}>Start Securing Now</Link>
-                <Link to="/verify" className="glass-panel" style={{ fontSize: '1.1rem', padding: '1rem 2rem', textDecoration: 'none', color: 'var(--text-primary)', display: 'inline-block' }}>Verify Document</Link>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>

@@ -2,9 +2,19 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { WalletContext } from '../context/WalletContext';
-import { FileText, Download, Calendar, Share2, CheckCircle } from 'lucide-react';
+import {
+    FileText,
+    Shield,
+    HardDrive,
+    Activity,
+    Plus,
+    Search
+} from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
+import StatCard from '../components/StatCard';
+import FileCard from '../components/FileCard';
 import ShareModal from '../components/ShareModal';
 
 const Dashboard = () => {
@@ -24,7 +34,6 @@ const Dashboard = () => {
                     await axios.post(`${apiUrl}/auth/update-wallet`, { walletAddress: account }, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    // Silent success - ensuring backend is in sync
                 } catch (error) {
                     console.error("Wallet sync failed", error);
                 }
@@ -35,7 +44,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!user) return; // Wait for user
+            if (!user) return;
             try {
                 const token = localStorage.getItem('token');
                 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -47,47 +56,37 @@ const Dashboard = () => {
                 setMyDocs(resDocs.data);
 
                 // Fetch Shared Docs (Approved Requests)
-                // In our system, a 'shared doc' is an AccessRequest where:
-                // 1. requester = me (I asked or was granted direct access)
-                // 2. status = approved
                 const resRequests = await axios.get(`${apiUrl}/access/requests`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
                 const approved = resRequests.data.outgoing
-                    .filter(req => req.status === 'approved')
+                    .filter(req => req.status === 'approved' && req.document && req.owner)
                     .map(req => {
-                        // Handle potential missing populated fields safely
                         return {
                             ...req.document,
-                            _id: req.document?._id, // Ensure ID is top level for DocTable
+                            _id: req.document._id,
                             requestId: req._id,
                             owner: req.owner,
-                            createdAt: req.approvalDate || req.requestDate // Use approval date if available
+                            createdAt: req.approvalDate || req.requestDate
                         };
-                    })
-                    .filter(doc => doc && doc._id); // Filter out any malformed entries
+                    });
 
                 setSharedDocs(approved);
 
             } catch (error) {
                 console.error("Dashboard Fetch Error:", error);
                 if (error.response?.status === 401) {
-                    // Token might be expired
                     toast.error("Session expired. Please login again.");
-                } else {
-                    toast.error("Failed to load dashboard data");
                 }
             }
         };
 
         fetchData();
-
-        // Poll for updates every 10s to ensure "Shared with me" appears if someone grants access while I'm on the page
         const interval = setInterval(fetchData, 10000);
         return () => clearInterval(interval);
 
-    }, [user]); // Re-run when user auth state is confirmed
+    }, [user]);
 
     const handleDownload = async (docId, fileName) => {
         if (!account) return toast.error("Please connect your wallet to download.");
@@ -102,7 +101,6 @@ const Dashboard = () => {
                 responseType: 'blob'
             });
 
-            // Create download link
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -125,96 +123,113 @@ const Dashboard = () => {
         setShareModalOpen(true);
     };
 
-    const DocTable = ({ docs, isShared }) => (
-        <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                    <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
-                        <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Name</th>
-                        <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Owner</th>
-                        <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Date</th>
-                        <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {docs.length > 0 ? docs.map(doc => (
-                        <tr key={doc._id || doc.requestId} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '1rem' }}>
-                                <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.75rem' }}>
-                                    <FileText size={20} color="var(--accent)" />
-                                    <span style={{ fontWeight: 500 }}>{doc.fileName || doc.title}</span>
-                                </div>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                                {isShared ? (
-                                    <span className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
-                                        <Share2 size={14} /> {doc.owner?.username}
-                                    </span>
-                                ) : (
-                                    <span className="text-secondary">Me</span>
-                                )}
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                                <div className="flex-center text-secondary" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
-                                    <Calendar size={14} />
-                                    {new Date(doc.createdAt || Date.now()).toLocaleDateString()}
-                                </div>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                                <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
-                                    <button
-                                        onClick={() => handleDownload(doc._id, doc.fileName)}
-                                        className="btn-primary flex-center"
-                                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', gap: '0.4rem' }}
-                                    >
-                                        <Download size={14} /> Download
-                                    </button>
-                                    {!isShared && (
-                                        <button
-                                            onClick={() => openShareModal(doc)}
-                                            className="btn-secondary flex-center"
-                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', gap: '0.4rem' }}
-                                        >
-                                            <Share2 size={14} /> Share
-                                        </button>
-                                    )}
-                                </div>
-                            </td>
-                        </tr>
-                    )) : (
-                        <tr>
-                            <td colSpan="4" className="text-center text-secondary" style={{ padding: '3rem' }}>
-                                No documents found.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
+    const handleDeleteFile = async (fileId) => {
+        if (!window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+            await axios.delete(`${apiUrl}/upload/${fileId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            toast.success('File deleted successfully');
+            fetchDocs(); // Refresh list
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete file');
+        }
+    };
 
     return (
-        <div className="container fade-in" style={{ marginTop: '2rem' }}>
-            <div className="flex-between mb-4">
-                <h2>My Dashboard</h2>
-                <div className="glass-panel" style={{ padding: '0.5rem 1rem' }}>
-                    Organization: <span style={{ color: 'var(--accent)' }}>{user?.username}</span>
+        <div className="container fade-in" style={{ marginTop: '4rem' }}>
+            <div className="dashboard-header mb-8">
+                <div>
+                    <h2>My Dashboard</h2>
+                    <p className="text-secondary">Manage your secure documents</p>
+                </div>
+                <header className="mb-8 fade-in">
+                    <h1 className="text-gradient">Welcome back, {user?.username}</h1>
+                    <p className="text-secondary">Here's what's happening with your secure documents.</p>
+                </header>
+            </div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 mb-8 fade-in" style={{ animationDelay: '0.1s' }}>
+                <StatCard
+                    title="Total Uploads"
+                    value={myDocs.length}
+                    icon={<FileText />}
+                    color="59, 130, 246"
+                />
+                <StatCard
+                    title="Shared With Me"
+                    value={sharedDocs.length}
+                    icon={<Shield />}
+                    color="16, 185, 129"
+                />
+                <StatCard
+                    title="Storage Used"
+                    value={`${(myDocs.length * 1.5).toFixed(1)} MB`}
+                    icon={<HardDrive />}
+                    color="245, 158, 11"
+                />
+            </div>
+
+            {/* Quick Actions & Recent Uploads */}
+            <div className="flex-between mb-4 fade-in" style={{ animationDelay: '0.2s' }}>
+                <h3>Recent Uploads</h3>
+                <div className="flex-center gap-2">
+                    <Link to="/search">
+                        <button className="btn-secondary flex-center gap-2">
+                            <Search size={18} /> Find Docs
+                        </button>
+                    </Link>
+                    <Link to="/upload">
+                        <button className="btn-primary flex-center gap-2">
+                            <Plus size={18} /> Upload New
+                        </button>
+                    </Link>
                 </div>
             </div>
 
-            <div className="glass-panel mb-4" style={{ padding: '0', overflow: 'hidden' }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', background: 'rgba(59, 130, 246, 0.05)' }}>
-                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>My Uploads</h3>
+            {/* My Uploads Grid */}
+            {myDocs.length > 0 ? (
+                <div className="grid grid-cols-3 mb-8 fade-in" style={{ animationDelay: '0.3s' }}>
+                    {myDocs.map(doc => (
+                        <FileCard
+                            key={doc._id}
+                            file={doc}
+                            isShared={false}
+                            onDownload={handleDownload}
+                            onShare={openShareModal}
+                            onDelete={handleDeleteFile}
+                        />
+                    ))}
                 </div>
-                <DocTable docs={myDocs} isShared={false} />
-            </div>
+            ) : (
+                <div className="glass-panel text-center mb-8 fade-in" style={{ padding: '3rem' }}>
+                    <p className="text-secondary">You haven't uploaded any documents yet.</p>
+                </div>
+            )}
 
-            <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', background: 'rgba(16, 185, 129, 0.05)' }}>
-                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Shared with Me</h3>
-                </div>
-                <DocTable docs={sharedDocs} isShared={true} />
-            </div>
+            {/* Shared with Me Section */}
+            {sharedDocs.length > 0 && (
+                <>
+                    <h3 className="mb-4 fade-in" style={{ animationDelay: '0.4s' }}>Shared with Me</h3>
+                    <div className="grid grid-cols-3 mb-8 fade-in" style={{ animationDelay: '0.5s' }}>
+                        {sharedDocs.map(doc => (
+                            <FileCard
+                                key={doc._id || doc.requestId}
+                                file={doc}
+                                isShared={true}
+                                onDownload={handleDownload}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
             <ShareModal
                 isOpen={shareModalOpen}

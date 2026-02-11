@@ -6,16 +6,19 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev"
+    "dev:frontend": "cd frontend && npm run dev",
+    "chain": "npx ganache-cli --db ./chain-data --deterministic --hostname 0.0.0.0 --port 8545"
   },
   "author": "Antigravity",
   "license": "ISC",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.19.0"
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": "^0.1.1",
+    "hardhat": "^2.22.18"
   },
   "dependencies": {
     "axios": "^1.13.4",
+    "dotenv": "^16.4.5",
     "ethers": "^6.16.0",
     "framer-motion": "^12.33.0",
     "lucide-react": "^0.563.0",

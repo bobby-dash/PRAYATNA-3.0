@@ -19,7 +19,8 @@ export const NotificationProvider = ({ children }) => {
             });
 
             // Count pending incoming requests
-            const pending = res.data.incoming.filter(req => req.status === 'pending').length;
+            const incoming = res.data?.incoming || [];
+            const pending = incoming.filter(req => req.status === 'pending').length;
 
             if (showToast && pending > requestCount) {
                 toast("New Access Request Received!", {

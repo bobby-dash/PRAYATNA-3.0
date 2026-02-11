@@ -9,6 +9,11 @@ const AccessRequestSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
     },
+    requestType: {
+        type: String,
+        enum: ['request', 'offer'], // 'request' = User asks for file, 'offer' = Owner sends file
+        default: 'request'
+    },
     requestDate: { type: Date, default: Date.now },
     responseDate: { type: Date }
 });

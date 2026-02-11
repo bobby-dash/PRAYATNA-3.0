@@ -207,4 +207,41 @@ router.get('/my-docs', protect, async (req, res) => {
     }
 });
 
+// @route   DELETE /api/upload/:id
+// @desc    Delete a document (Owner only)
+router.delete('/:id', protect, async (req, res) => {
+    try {
+        const document = await Document.findById(req.params.id);
+
+        if (!document) {
+            return res.status(404).json({ message: 'Document not found' });
+        }
+
+        // Check ownership
+        if (document.owner.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to delete this document' });
+        }
+
+        // Delete associated access requests
+        await AccessRequest.deleteMany({ document: document._id });
+
+        // Delete from DB
+        await document.deleteOne();
+
+        // Log deletion
+        await AccessLog.create({
+            user: req.user.id,
+            document: document._id, // Might be null if doc is gone, but keeping ID for record
+            action: 'DELETE_FILE',
+            status: 'SUCCESS',
+            ipAddress: req.ip
+        });
+
+        res.json({ message: 'Document deleted successfully' });
+    } catch (error) {
+        console.error('Delete Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 module.exports = router;

@@ -1,81 +1,103 @@
 {
-    "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    "network": "localhost",
-    "abi": [
+  "address": "0x14F3E4c5DaF4AF7d712810E322486c427BC2d818",
+  "network": "localhost",
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "DocumentAdded",
+      "inputs": [
         {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_ipfsHash",
-                    "type": "string"
-                },
-                {
-                    "internalType": "string",
-                    "name": "_fileHash",
-                    "type": "string"
-                },
-                {
-                    "internalType": "string",
-                    "name": "_name",
-                    "type": "string"
-                }
-            ],
-            "name": "addDocument",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
+          "type": "string",
+          "name": "fileHash",
+          "indexed": true
         },
         {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_fileHash",
-                    "type": "string"
-                }
-            ],
-            "name": "verifyDocument",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "ipfsHash",
-                    "type": "string"
-                },
-                {
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "timestamp",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "string",
-                    "name": "name",
-                    "type": "string"
-                },
-                {
-                    "internalType": "bool",
-                    "name": "isVerified",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
+          "type": "string",
+          "name": "ipfsHash",
+          "indexed": false
         },
         {
-            "inputs": [],
-            "name": "getMyDocuments",
-            "outputs": [
-                {
-                    "internalType": "string[]",
-                    "name": "",
-                    "type": "string[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
+          "type": "address",
+          "name": "owner",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
         }
-    ]
+      ]
+    },
+    {
+      "type": "function",
+      "name": "addDocument",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "_ipfsHash"
+        },
+        {
+          "type": "string",
+          "name": "_fileHash"
+        },
+        {
+          "type": "string",
+          "name": "_name"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getMyDocuments",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "string[]",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "verifyDocument",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "_fileHash"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "name": "ipfsHash"
+        },
+        {
+          "type": "address",
+          "name": "owner"
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp"
+        },
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "bool",
+          "name": "isVerified"
+        }
+      ]
+    }
+  ]
 }

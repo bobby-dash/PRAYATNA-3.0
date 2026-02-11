@@ -4,6 +4,7 @@ const { protect } = require('../middleware/auth');
 const AccessRequest = require('../models/AccessRequest');
 const Document = require('../models/Document');
 const AccessLog = require('../models/AccessLog');
+const User = require('../models/User');
 
 // @route   POST /api/access/request
 // @desc    Request access to a document
@@ -66,8 +67,17 @@ router.post('/approve', protect, async (req, res) => {
             return res.status(404).json({ message: 'Request not found' });
         }
 
-        if (request.owner.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        // Authorization Check
+        if (request.requestType === 'offer') {
+            // For Offers, the RECEIVER (requester) approves/rejects
+            if (request.requester.toString() !== req.user.id) {
+                return res.status(403).json({ message: 'Not authorized to approve this offer' });
+            }
+        } else {
+            // For Requests, the OWNER approves/rejects
+            if (request.owner.toString() !== req.user.id) {
+                return res.status(403).json({ message: 'Not authorized to manage this request' });
+            }
         }
 
         request.status = status;
@@ -94,13 +104,27 @@ router.post('/approve', protect, async (req, res) => {
 // @desc    Get all requests related to user (incoming and outgoing)
 router.get('/requests', protect, async (req, res) => {
     try {
-        const incoming = await AccessRequest.find({ owner: req.user.id })
+        // Incoming: Requests for my files OR Offers sent to me
+        const incoming = await AccessRequest.find({
+            $or: [
+                { owner: req.user.id, requestType: 'request' },
+                { requester: req.user.id, requestType: 'offer' }
+            ]
+        })
             .populate('requester', 'username email')
+            .populate('owner', 'username email')
             .populate('document', 'title fileName')
             .sort({ requestDate: -1 });
 
-        const outgoing = await AccessRequest.find({ requester: req.user.id })
+        // Outgoing: My requests for files OR My offers to others
+        const outgoing = await AccessRequest.find({
+            $or: [
+                { requester: req.user.id, requestType: 'request' },
+                { owner: req.user.id, requestType: 'offer' }
+            ]
+        })
             .populate('owner', 'username email')
+            .populate('requester', 'username email')
             .populate('document', 'title fileName')
             .sort({ requestDate: -1 });
 
@@ -138,45 +162,53 @@ router.post('/grant-direct', protect, async (req, res) => {
         });
 
         if (existingRequest) {
-            if (existingRequest.status === 'approved') {
-                return res.status(400).json({ message: 'User already has access' });
-            }
-            // Approve existing request
-            existingRequest.status = 'approved';
-            existingRequest.approvalDate = Date.now();
-            await existingRequest.save();
-
-            // Log
-            await AccessLog.create({
-                user: req.user.id,
-                document: document._id,
-                action: 'APPROVE_ACCESS',
-                status: 'SUCCESS',
-                ipAddress: req.ip
-            });
-
-            return res.json({ message: 'Access granted successfully' });
+            return res.status(400).json({ message: 'Request already exists or access already granted' });
         }
 
-        // Create new approved request
-        await AccessRequest.create({
+        // Create new OFFER (Pending approval by recipient)
+        const newOffer = await AccessRequest.create({
             requester: recipient._id,
             document: document._id,
             owner: req.user.id,
-            status: 'approved',
-            approvalDate: Date.now()
+            status: 'pending',
+            requestType: 'offer',
+            requestDate: Date.now()
         });
 
         // Log
         await AccessLog.create({
             user: req.user.id,
             document: document._id,
-            action: 'GRANT_ACCESS',
+            action: 'OFFER_ACCESS',
             status: 'SUCCESS',
             ipAddress: req.ip
         });
 
-        res.json({ message: `Access granted to ${recipient.username}` });
+        res.json({ message: `File offered to ${recipient.username}. They must accept it.` });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// @route   DELETE /api/access/:id
+// @desc    Delete/Dismiss a request
+router.delete('/:id', protect, async (req, res) => {
+    try {
+        const request = await AccessRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        // Authorization: Only Requester or Owner can delete/dismiss
+        if (request.requester.toString() !== req.user.id && request.owner.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        await request.deleteOne();
+        res.json({ message: 'Request removed' });
 
     } catch (error) {
         console.error(error);

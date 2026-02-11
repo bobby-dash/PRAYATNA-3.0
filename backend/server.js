@@ -17,16 +17,26 @@ const PORT = process.env.PORT || 5000;
 // Middleware (Enhanced Security)
 const helmet = require('helmet');
 const rateLimiter = require('./middleware/rateLimiter');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 app.use(helmet());
 app.use(rateLimiter);
+
+// Data Sanitization against NoSQL Query Injection
+app.use(mongoSanitize());
+
+// Data Sanitization against XSS
+app.use(xss());
+
 app.use(cors({
-    origin: '*', // Allow all origins for network access
+    origin: '*', // Allow all origins for debugging
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10kb' })); // Body limit is 10kb
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/tamper-proof-platform')
