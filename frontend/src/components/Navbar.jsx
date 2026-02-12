@@ -1,103 +1,221 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { WalletContext } from '../context/WalletContext';
 import { NotificationContext } from '../context/NotificationContext';
-import { Shield, Upload, FileText, Search, LogOut, Wallet } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
+import { ThemeContext } from '../context/ThemeContext';
+import {
+    Shield,
+    Upload,
+    FileText,
+    Search,
+    LogOut,
+    Wallet,
+    LayoutDashboard,
+    User,
+    Sun,
+    Moon
+} from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
     const { account, connectWallet } = useContext(WalletContext);
     const { requestCount } = useContext(NotificationContext);
+    const { theme, toggleTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Show navbar when scrolled down
+            if (currentScrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+
+            // Hide/show based on scroll direction
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+
+            setLastScrollY(currentScrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
+
+    // Close mobile menu when route changes
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
+        setMobileMenuOpen(false);
     };
 
-    const isActive = (path) => location.pathname === path ? 'var(--accent)' : 'var(--text-secondary)';
-    const linkStyle = (path) => ({
-        color: isActive(path),
-        textDecoration: 'none',
-        fontWeight: location.pathname === path ? 600 : 500
-    });
+    const isActive = (path) => location.pathname === path;
 
+    // Public navbar (for landing page, login, register)
+    if (!user) {
+        return (
+            <header className="navbar-container">
+                <nav className="navbar glass-panel">
+                    <Link to="/" className="navbar-logo">
+                        <Shield color="var(--accent)" size={32} />
+                        <span className="logo-text">SecureShare</span>
+                    </Link>
+
+                    <div className="navbar-actions">
+                        <button onClick={toggleTheme} className="icon-btn">
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
+                        <Link to="/login" className="nav-link">Login</Link>
+                        <Link to="/register" className="btn-primary">Get Started</Link>
+                    </div>
+                </nav>
+            </header>
+        );
+    }
+
+    // Authenticated navbar (sticky with scroll behavior)
     return (
-        <header className="container" style={{ marginTop: '1rem' }}>
-            <nav className="glass-panel flex-between" style={{ padding: '1rem 2rem' }}>
-                <Link to="/" className="flex-center gap-1" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Shield color="var(--accent)" size={32} />
-                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>SecureShare</span>
+        <header className={`navbar-container sticky ${isScrolled ? 'scrolled' : ''} ${isVisible ? 'visible' : 'hidden'}`}>
+            <nav className="navbar glass-panel">
+                <Link to="/dashboard" className="navbar-logo">
+                    <Shield color="var(--accent)" size={28} />
+                    <span className="logo-text">SecureShare</span>
                 </Link>
 
-                <div className="flex-center gap-2">
-                    <ThemeToggle />
-                    {user ? (
-                        <>
-                            <Link to="/dashboard" className="flex-center gap-1" style={linkStyle('/dashboard')}>
-                                <FileText size={18} /> Dashboard
-                            </Link>
-                            <Link to="/upload" className="flex-center gap-1" style={linkStyle('/upload')}>
-                                <Upload size={18} /> Upload
-                            </Link>
-                            <Link to="/search" className="flex-center gap-1" style={linkStyle('/search')}>
-                                <Search size={18} /> Discover
-                            </Link>
-                            <Link to="/requests" className="flex-center gap-1" style={{ ...linkStyle('/requests'), position: 'relative' }}>
-                                <FileText size={18} /> Requests
-                                {requestCount > 0 && (
-                                    <span style={{
-                                        position: 'absolute',
-                                        top: '-8px',
-                                        right: '-12px',
-                                        background: 'var(--error)',
-                                        color: 'white',
-                                        fontSize: '0.7rem',
-                                        fontWeight: 'bold',
-                                        borderRadius: '50%',
-                                        width: '18px',
-                                        height: '18px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        {requestCount}
-                                    </span>
-                                )}
-                            </Link>
+                <div className="navbar-nav">
+                    <Link to="/dashboard" className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
+                        <LayoutDashboard size={18} />
+                        <span>Dashboard</span>
+                    </Link>
+                    <Link to="/upload" className={`nav-item ${isActive('/upload') ? 'active' : ''}`}>
+                        <Upload size={18} />
+                        <span>Upload</span>
+                    </Link>
+                    <Link to="/search" className={`nav-item ${isActive('/search') ? 'active' : ''}`}>
+                        <Search size={18} />
+                        <span>Discover</span>
+                    </Link>
+                    <Link to="/requests" className={`nav-item ${isActive('/requests') ? 'active' : ''}`}>
+                        <FileText size={18} />
+                        <span>Requests</span>
+                        {requestCount > 0 && (
+                            <span className="nav-badge">{requestCount}</span>
+                        )}
+                    </Link>
+                </div>
 
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border)' }}></div>
+                <div className="navbar-actions">
+                    <button
+                        onClick={connectWallet}
+                        className={`wallet-btn-nav ${account ? 'connected' : ''}`}
+                        title={account ? 'Wallet Connected' : 'Connect Wallet'}
+                    >
+                        <Wallet size={18} />
+                        <span className="wallet-text">
+                            {account ? `${account.substring(0, 6)}...${account.substring(38)}` : 'Connect'}
+                        </span>
+                    </button>
 
-                            <button
-                                onClick={connectWallet}
-                                className="btn-primary flex-center gap-1"
-                                style={{
-                                    background: account ? 'var(--success)' : 'var(--accent)',
-                                    padding: '0.5rem 1rem',
-                                    border: 'none',
-                                    color: 'white'
-                                }}
-                            >
-                                <Wallet size={18} />
-                                {account ? `${account.substring(0, 6)}...${account.substring(38)}` : 'Connect Wallet'}
-                            </button>
+                    <Link to="/profile" className="profile-btn desktop-only" title="Profile">
+                        <div className="user-avatar-small">
+                            {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    </Link>
 
-                            <button onClick={handleLogout} className="btn-secondary" style={{ border: 'none' }}>
-                                <LogOut size={20} />
-                            </button>
-                        </>
-                    ) : (
-                        <>
+                    <button onClick={toggleTheme} className="icon-btn desktop-only" title="Toggle Theme">
+                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
 
-                            <Link to="/login" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Login</Link>
-                            <Link to="/register" className="btn-primary">Get Started</Link>
-                        </>
-                    )}
+                    <button onClick={handleLogout} className="icon-btn logout-btn desktop-only" title="Logout">
+                        <LogOut size={18} />
+                    </button>
+
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="icon-btn mobile-menu-toggle"
+                        aria-label="Toggle menu"
+                    >
+                        {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                    </button>
                 </div>
             </nav>
+
+            {/* Mobile Menu Dropdown */}
+            {mobileMenuOpen && (
+                <div className="mobile-menu glass-panel">
+                    <div className="mobile-menu-content">
+                        {/* Navigation Links */}
+                        <Link to="/dashboard" className={`mobile-nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
+                            <LayoutDashboard size={20} />
+                            <span>Dashboard</span>
+                        </Link>
+                        <Link to="/upload" className={`mobile-nav-item ${isActive('/upload') ? 'active' : ''}`}>
+                            <Upload size={20} />
+                            <span>Upload</span>
+                        </Link>
+                        <Link to="/search" className={`mobile-nav-item ${isActive('/search') ? 'active' : ''}`}>
+                            <Search size={20} />
+                            <span>Discover</span>
+                        </Link>
+                        <Link to="/requests" className={`mobile-nav-item ${isActive('/requests') ? 'active' : ''}`}>
+                            <FileText size={20} />
+                            <span>Requests</span>
+                            {requestCount > 0 && (
+                                <span className="nav-badge">{requestCount}</span>
+                            )}
+                        </Link>
+
+                        <div className="mobile-menu-divider"></div>
+
+                        {/* Wallet Button */}
+                        <button
+                            onClick={connectWallet}
+                            className={`mobile-wallet-btn ${account ? 'connected' : ''}`}
+                        >
+                            <Wallet size={20} />
+                            <span>
+                                {account ? `${account.substring(0, 6)}...${account.substring(38)}` : 'Connect Wallet'}
+                            </span>
+                        </button>
+
+                        {/* Profile Link */}
+                        <Link to="/profile" className="mobile-nav-item">
+                            <User size={20} />
+                            <span>Profile</span>
+                        </Link>
+
+                        {/* Theme Toggle */}
+                        <button onClick={toggleTheme} className="mobile-nav-item">
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                        </button>
+
+                        {/* Logout */}
+                        <button onClick={handleLogout} className="mobile-nav-item logout">
+                            <LogOut size={20} />
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </header>
     );
 };
