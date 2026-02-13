@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { createAppKit } from '@reown/appkit/react';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
-import { mainnet, arbitrum, polygon } from '@reown/appkit/networks';
+import { mainnet, arbitrum, polygon, sepolia } from '@reown/appkit/networks';
 import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import { ethers } from 'ethers'; // Keep for other utils if needed
 import { toast } from 'react-hot-toast';
@@ -11,7 +11,7 @@ import axios from 'axios';
 const projectId = '0f2e6d31966b27e5e50f322937ca642b';
 
 // 2. Set capabilities
-const networks = [mainnet, arbitrum, polygon];
+const networks = [mainnet, arbitrum, polygon, sepolia];
 
 // 3. Create a metadata object
 const metadata = {
