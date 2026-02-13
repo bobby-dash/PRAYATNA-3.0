@@ -14,7 +14,9 @@ import {
     LayoutDashboard,
     User,
     Sun,
-    Moon
+    Moon,
+    Menu,
+    X
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -158,24 +160,32 @@ const Navbar = () => {
                 </div>
             </nav>
 
+            {/* Mobile Menu Backdrop */}
+            {mobileMenuOpen && (
+                <div
+                    className="mobile-menu-backdrop"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Mobile Menu Dropdown */}
             {mobileMenuOpen && (
                 <div className="mobile-menu glass-panel">
                     <div className="mobile-menu-content">
                         {/* Navigation Links */}
-                        <Link to="/dashboard" className={`mobile-nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
+                        <Link to="/dashboard" className={`mobile-nav-item ${isActive('/dashboard') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                             <LayoutDashboard size={20} />
                             <span>Dashboard</span>
                         </Link>
-                        <Link to="/upload" className={`mobile-nav-item ${isActive('/upload') ? 'active' : ''}`}>
+                        <Link to="/upload" className={`mobile-nav-item ${isActive('/upload') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                             <Upload size={20} />
                             <span>Upload</span>
                         </Link>
-                        <Link to="/search" className={`mobile-nav-item ${isActive('/search') ? 'active' : ''}`}>
+                        <Link to="/search" className={`mobile-nav-item ${isActive('/search') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                             <Search size={20} />
                             <span>Discover</span>
                         </Link>
-                        <Link to="/requests" className={`mobile-nav-item ${isActive('/requests') ? 'active' : ''}`}>
+                        <Link to="/requests" className={`mobile-nav-item ${isActive('/requests') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                             <FileText size={20} />
                             <span>Requests</span>
                             {requestCount > 0 && (
@@ -197,7 +207,7 @@ const Navbar = () => {
                         </button>
 
                         {/* Profile Link */}
-                        <Link to="/profile" className="mobile-nav-item">
+                        <Link to="/profile" className="mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
                             <User size={20} />
                             <span>Profile</span>
                         </Link>

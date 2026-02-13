@@ -166,22 +166,6 @@ const Profile = () => {
                         </button>
                     </form>
                 </div>
-
-                {/* Data Management */}
-                <div className="glass-panel profile-section">
-                    <div className="section-header">
-                        <Database className="section-icon" size={24} />
-                        <h3>Data Management</h3>
-                    </div>
-                    <p className="section-description">
-                        Download a complete backup of your upload history and access request logs.
-                        This data is stored locally on your device.
-                    </p>
-                    <button onClick={handleBackup} className="btn-secondary w-full">
-                        <Download size={18} />
-                        <span>Download Local Backup (JSON)</span>
-                    </button>
-                </div>
             </div>
         </div>
     );

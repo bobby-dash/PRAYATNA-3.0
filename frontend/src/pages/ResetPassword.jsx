@@ -7,6 +7,7 @@ import { Lock } from 'lucide-react';
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { resetToken } = useParams();
     const navigate = useNavigate();
 
@@ -16,13 +17,17 @@ const ResetPassword = () => {
             return toast.error("Passwords don't match");
         }
 
+        setLoading(true);
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
             await axios.put(`${apiUrl}/auth/reset-password/${resetToken}`, { password });
             toast.success('Password reset successfully');
-            navigate('/login');
+            setTimeout(() => navigate('/login'), 1000);
         } catch (error) {
+            console.error('Reset error:', error);
             toast.error(error.response?.data?.message || 'Reset failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -66,8 +71,13 @@ const ResetPassword = () => {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.8rem' }}>
-                        Reset Password
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                        style={{ width: '100%', padding: '0.8rem' }}
+                        disabled={loading}
+                    >
+                        {loading ? 'Resetting...' : 'Reset Password'}
                     </button>
                 </form>
             </div>

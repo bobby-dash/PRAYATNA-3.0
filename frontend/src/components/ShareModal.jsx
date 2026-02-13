@@ -47,9 +47,19 @@ const ShareModal = ({ isOpen, onClose, documentId, documentTitle }) => {
             zIndex: 1000,
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
-        }}>
-            <div className="glass-panel" style={{ width: '400px', padding: '2rem', position: 'relative', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            alignItems: 'center',
+            padding: '1rem',
+            overflow: 'auto'
+        }} onClick={onClose}>
+            <div className="glass-panel" style={{
+                width: '100%',
+                maxWidth: '400px',
+                padding: '2rem',
+                position: 'relative',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                margin: 'auto'
+            }} onClick={(e) => e.stopPropagation()}>
                 <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                     <X size={20} />
                 </button>

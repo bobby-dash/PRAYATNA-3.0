@@ -11,8 +11,20 @@ export const AuthProvider = ({ children }) => {
         const checkUserLoggedIn = async () => {
             const token = localStorage.getItem('token');
             if (token) {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                setUser(userData);
+                try {
+                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                    const res = await axios.get(`${apiUrl}/auth/me`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    // If successful, update user state
+                    const userData = { ...res.data, token };
+                    setUser(userData);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                } catch (error) {
+                    console.error("Token validation failed:", error);
+                    logout();
+                }
             }
             setLoading(false);
         };

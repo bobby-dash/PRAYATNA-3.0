@@ -137,7 +137,8 @@ const Dashboard = () => {
             });
 
             toast.success('File deleted successfully');
-            fetchDocs(); // Refresh list
+            // Refresh the file list by removing the deleted file
+            setMyDocs(prevDocs => prevDocs.filter(doc => doc._id !== fileId));
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete file');

@@ -548,17 +548,47 @@ select option {
   display: flex;
 }
 
-/* Mobile Menu Dropdown */
-.mobile-menu {
-  position: absolute;
-  top: 100%;
+/* Mobile Menu Backdrop */
+.mobile-menu-backdrop {
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
-  margin: 0.5rem 1rem;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile Menu Dropdown */
+.mobile-menu {
+  position: fixed;
+  top: calc(var(--header-height, 70px) + 0.5rem);
+  left: 1rem;
+  right: 1rem;
   border-radius: 16px;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - var(--header-height, 70px) - 2rem);
   overflow-y: auto;
   animation: slideDown 0.3s ease-out;
+  z-index: 999;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Override glass-panel for mobile menu - use solid background */
+  background: var(--bg-secondary) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 @keyframes slideDown {

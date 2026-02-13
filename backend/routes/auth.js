@@ -11,6 +11,33 @@ const generateToken = (id) => {
     });
 };
 
+// @route   GET /api/auth/me
+// @desc    Get current logged in user
+// @access  Private
+router.get('/me', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({
+            _id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+});
+
 // @route   POST /api/auth/register
 // @desc    Register new user
 // @access  Public
@@ -177,6 +204,10 @@ router.put('/change-password', async (req, res) => {
 // @route   POST /api/auth/forgot-password
 // @desc    Forgot password
 router.post('/forgot-password', async (req, res) => {
+    console.log('Forgot password request received');
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+
     const { email } = req.body;
 
     try {
@@ -187,27 +218,93 @@ router.post('/forgot-password', async (req, res) => {
         const resetToken = user.getResetPasswordToken();
         await user.save({ validateBeforeSave: false });
 
-        // Create reset url
-        // Frontend URL
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+        // Create reset url - use network-accessible URL
+        // If FRONTEND_URL is set, use it (especially to replace localhost with network IP)
+        // Otherwise, try to detect from request headers
+        let origin = req.headers.origin ||
+            (req.headers.referer ? new URL(req.headers.referer).origin : null);
 
-        const message = `You are receiving this email because you (or someone else) has requested the reset of a password. \n\n Please make a PUT request to: \n\n ${resetUrl}`;
+        // If FRONTEND_URL is set, use it (this ensures network IP is used instead of localhost)
+        if (process.env.FRONTEND_URL) {
+            origin = process.env.FRONTEND_URL;
+        } else if (!origin) {
+            // Final fallback to localhost if nothing else is available
+            origin = 'http://localhost:5173';
+        }
+
+        const resetUrl = `${origin}/reset-password/${resetToken}`;
+
+        const message = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">🔐 Password Reset Request</h1>
+                </div>
+                
+                <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">Hello,</p>
+                    
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        You are receiving this email because you (or someone else) has requested to reset the password for your account.
+                    </p>
+                    
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        Please click the button below to reset your password:
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetUrl}" style="display: inline-block; padding: 15px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">
+                            Reset Password
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                        Or copy and paste this link into your browser:
+                    </p>
+                    <p style="font-size: 14px; color: #667eea; word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 5px;">
+                        ${resetUrl}
+                    </p>
+                    
+                    <p style="font-size: 14px; color: #999; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                        ⏰ This link will expire in 10 minutes.
+                    </p>
+                    
+                    <p style="font-size: 14px; color: #999;">
+                        If you did not request this, please ignore this email and your password will remain unchanged.
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+                    <p>© ${new Date().getFullYear()} SecureShare. All rights reserved.</p>
+                </div>
+            </div>
+        `;
+
         const sendEmail = require('../utils/sendEmail');
 
         try {
+            console.log('Attempting to send password reset email to:', user.email);
+            console.log('Reset URL:', resetUrl);
+            console.log('Email config - Service:', process.env.EMAIL_SERVICE);
+            console.log('Email config - Username:', process.env.EMAIL_USERNAME);
+            console.log('Email config - Password set:', !!process.env.EMAIL_PASSWORD);
+
             await sendEmail({
                 email: user.email,
-                subject: 'Password Reset Token',
-                message
+                subject: 'Password Reset Request - SecureShare',
+                message: message.replace(/<[^>]*>/g, ''), // Plain text fallback
+                html: message
             });
 
+            console.log('Password reset email sent successfully to:', user.email);
             res.status(200).json({ success: true, data: 'Email sent' });
         } catch (err) {
-            console.error(err);
+            console.error('Email Error Details:', err);
+            console.error('Error message:', err.message);
+            console.error('Error stack:', err.stack);
             user.resetPasswordToken = undefined;
             user.resetPasswordExpire = undefined;
             await user.save({ validateBeforeSave: false });
-            return res.status(500).json({ message: 'Email could not be sent' });
+            return res.status(500).json({ message: 'Email could not be sent', error: err.message });
         }
     } catch (error) {
         console.error(error);
@@ -218,11 +315,17 @@ router.post('/forgot-password', async (req, res) => {
 // @route   PUT /api/auth/reset-password/:resetToken
 // @desc    Reset password
 router.put('/reset-password/:resetToken', async (req, res) => {
+    console.log('Reset password request received');
+    console.log('Reset token from URL:', req.params.resetToken);
+    console.log('Request body:', req.body);
+
     const crypto = require('crypto');
     const resetPasswordToken = crypto
         .createHash('sha256')
         .update(req.params.resetToken)
         .digest('hex');
+
+    console.log('Hashed token:', resetPasswordToken);
 
     try {
         const user = await User.findOne({
@@ -230,8 +333,15 @@ router.put('/reset-password/:resetToken', async (req, res) => {
             resetPasswordExpire: { $gt: Date.now() }
         });
 
+        console.log('User found:', !!user);
+        if (user) {
+            console.log('Token expiry:', new Date(user.resetPasswordExpire));
+            console.log('Current time:', new Date());
+        }
+
         if (!user) {
-            return res.status(400).json({ message: 'Invalid token' });
+            console.log('Invalid or expired token');
+            return res.status(400).json({ message: 'Invalid or expired token' });
         }
 
         user.password = req.body.password;
@@ -240,14 +350,16 @@ router.put('/reset-password/:resetToken', async (req, res) => {
 
         await user.save();
 
+        console.log('Password reset successful for user:', user.email);
         res.status(201).json({
             success: true,
             message: 'Password Reset Success',
             token: generateToken(user._id)
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Reset password error:', error);
+        console.error('Error message:', error.message);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 

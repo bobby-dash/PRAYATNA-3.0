@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileText, Download, Share2, MoreVertical, ShieldCheck, Clock, Trash2 } from 'lucide-react';
 
-const FileCard = ({ file, isShared, onDownload, onShare }) => {
+const FileCard = ({ file, isShared, onDownload, onShare, onDelete }) => {
     // Parsing date
     const dateStr = new Date(file.createdAt || Date.now()).toLocaleDateString('en-US', {
         month: 'short',
@@ -59,7 +59,7 @@ const FileCard = ({ file, isShared, onDownload, onShare }) => {
                                     </button>
                                     <button className="delete-option" onClick={() => {
                                         setShowMenu(false);
-                                        if (file.onDelete) file.onDelete(file._id);
+                                        if (onDelete) onDelete(file._id);
                                     }}>
                                         <Trash2 size={14} /> Delete
                                     </button>
