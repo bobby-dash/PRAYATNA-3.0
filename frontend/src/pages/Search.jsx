@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search as SearchIcon, Filter, Lock, Unlock, FileText } from 'lucide-react';
+import { Search as SearchIcon, Filter, Lock, Unlock, FileText, BadgeCheck } from 'lucide-react';
 import AccessRequestModal from '../components/AccessRequestModal';
 
 const Search = () => {
@@ -50,7 +50,9 @@ const Search = () => {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
-                <button className="btn-primary">Search</button>
+                <button className="btn-primary" disabled={loading} style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                    {loading ? 'Searching...' : 'Search'}
+                </button>
             </div>
 
             <div className="grid">
@@ -75,7 +77,12 @@ const Search = () => {
                         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
                                 <span style={{ opacity: 0.7 }}>By:</span>
-                                <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{doc.owner?.username || 'Unknown'}</span>
+                                <span style={{ fontWeight: 500, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                    {doc.owner?.username || 'Unknown'}
+                                    {doc.owner?.walletAddress && (
+                                        <BadgeCheck size={16} color="#3b82f6" fill="transparent" title="Verified Organization" />
+                                    )}
+                                </span>
                             </div>
                             <button
                                 className="btn-secondary"

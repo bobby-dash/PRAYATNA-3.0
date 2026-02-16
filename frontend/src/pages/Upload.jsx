@@ -239,10 +239,10 @@ const Upload = () => {
                     <button
                         onClick={handleUpload}
                         className="btn-primary"
-                        disabled={!file && mode === 'file' || !textContent && mode === 'text'}
-                        style={{ width: '100%', opacity: (!file && mode === 'file' || !textContent && mode === 'text') ? 0.5 : 1 }}
+                        disabled={uploading || (!file && mode === 'file' || !textContent && mode === 'text')}
+                        style={{ width: '100%', opacity: (uploading || (!file && mode === 'file' || !textContent && mode === 'text')) ? 0.5 : 1, cursor: uploading ? 'not-allowed' : 'pointer' }}
                     >
-                        Upload Securely (Free)
+                        {uploading ? 'Processing...' : 'Upload Securely (Free)'}
                     </button>
                 )}
             </div>

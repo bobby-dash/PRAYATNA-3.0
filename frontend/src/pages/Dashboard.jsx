@@ -24,6 +24,7 @@ const Dashboard = () => {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [processingId, setProcessingId] = useState(null);
     const { user } = useContext(AuthContext);
     const { account } = useContext(WalletContext);
 
@@ -128,6 +129,8 @@ const Dashboard = () => {
     const handleDeleteFile = async (fileId) => {
         if (!window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) return;
 
+        if (!window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) return;
+        setProcessingId(fileId);
         try {
             const token = localStorage.getItem('token');
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -142,6 +145,8 @@ const Dashboard = () => {
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete file');
+        } finally {
+            setProcessingId(null);
         }
     };
 
@@ -222,7 +227,8 @@ const Dashboard = () => {
                                 isShared={false}
                                 onDownload={handleDownload}
                                 onShare={openShareModal}
-                                onDelete={handleDeleteFile}
+                                onDelete={processingId === doc._id ? null : handleDeleteFile}
+                                isProcessing={processingId === doc._id}
                             />
                         ))}
                 </div>

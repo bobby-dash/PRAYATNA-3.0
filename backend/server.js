@@ -29,8 +29,14 @@ app.use(mongoSanitize());
 // Data Sanitization against XSS
 app.use(xss());
 
+// Request Logger Middleware
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+    next();
+});
+
 app.use(cors({
-    origin: '*', // Allow all origins for debugging
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -54,6 +60,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Network Access: http://${require('os').networkInterfaces()['Wi-Fi']?.[1]?.address || 'YOUR_IP'}:${PORT}`);
 });

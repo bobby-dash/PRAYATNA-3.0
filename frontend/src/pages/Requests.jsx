@@ -6,6 +6,7 @@ import { User, CheckCircle, XCircle, Clock, File } from 'lucide-react';
 const Requests = () => {
     const [requests, setRequests] = useState({ incoming: [], outgoing: [] });
     const [loading, setLoading] = useState(true);
+    const [processingId, setProcessingId] = useState(null);
 
     const fetchRequests = async () => {
         try {
@@ -41,6 +42,7 @@ const Requests = () => {
     }, []);
 
     const handleAction = async (requestId, status) => {
+        setProcessingId(requestId);
         try {
             const token = localStorage.getItem('token');
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -54,6 +56,8 @@ const Requests = () => {
         } catch (error) {
             console.error(error);
             toast.error('Action failed');
+        } finally {
+            setProcessingId(null);
         }
     };
 
@@ -135,17 +139,19 @@ const Requests = () => {
                                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
                                     <button
                                         className="btn-primary"
-                                        style={{ flex: 1, background: '#10b981', borderColor: '#10b981' }}
+                                        style={{ flex: 1, background: '#10b981', borderColor: '#10b981', opacity: processingId === req._id ? 0.7 : 1, cursor: processingId === req._id ? 'not-allowed' : 'pointer' }}
                                         onClick={() => handleAction(req._id, 'approved')}
+                                        disabled={processingId === req._id}
                                     >
-                                        {isOffer ? 'Accept' : 'Approve'}
+                                        {processingId === req._id ? 'Processing...' : (isOffer ? 'Accept' : 'Approve')}
                                     </button>
                                     <button
                                         className="btn-secondary"
-                                        style={{ flex: 1, borderColor: '#ef4444', color: '#ef4444' }}
+                                        style={{ flex: 1, borderColor: '#ef4444', color: '#ef4444', opacity: processingId === req._id ? 0.7 : 1, cursor: processingId === req._id ? 'not-allowed' : 'pointer' }}
                                         onClick={() => handleAction(req._id, 'rejected')}
+                                        disabled={processingId === req._id}
                                     >
-                                        Reject
+                                        {processingId === req._id ? 'Processing...' : 'Reject'}
                                     </button>
                                 </div>
                             )}

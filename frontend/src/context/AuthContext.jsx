@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 try {
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                    console.log('AuthContext: Using API URL:', apiUrl); // Debug log
                     const res = await axios.get(`${apiUrl}/auth/me`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            console.log('Login: Using API URL:', apiUrl); // Debug log
             const res = await axios.post(`${apiUrl}/auth/login`, { email, password });
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data));

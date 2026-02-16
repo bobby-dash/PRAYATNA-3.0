@@ -11,6 +11,8 @@ const Profile = () => {
 
     const [orgName, setOrgName] = useState(user?.username || '');
     const [email, setEmail] = useState(user?.email || '');
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [passwordLoading, setPasswordLoading] = useState(false);
 
     const [passwords, setPasswords] = useState({
         current: '',
@@ -20,6 +22,7 @@ const Profile = () => {
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
+        setProfileLoading(true);
         try {
             const token = localStorage.getItem('token');
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -32,6 +35,8 @@ const Profile = () => {
             toast.success('Profile updated successfully');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Update failed');
+        } finally {
+            setProfileLoading(false);
         }
     };
 
@@ -40,6 +45,7 @@ const Profile = () => {
         if (passwords.new !== passwords.confirm) {
             return toast.error("New passwords don't match");
         }
+        setPasswordLoading(true);
         try {
             const token = localStorage.getItem('token');
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -51,6 +57,8 @@ const Profile = () => {
             setPasswords({ current: '', new: '', confirm: '' });
         } catch (error) {
             toast.error(error.response?.data?.message || 'Change password failed');
+        } finally {
+            setPasswordLoading(false);
         }
     };
 
@@ -111,9 +119,9 @@ const Profile = () => {
                                 placeholder="Enter email address"
                             />
                         </div>
-                        <button type="submit" className="btn-primary">
+                        <button type="submit" className="btn-primary" disabled={profileLoading} style={{ opacity: profileLoading ? 0.7 : 1, cursor: profileLoading ? 'not-allowed' : 'pointer' }}>
                             <Save size={18} />
-                            <span>Update Profile</span>
+                            <span>{profileLoading ? 'Updating...' : 'Update Profile'}</span>
                         </button>
                     </form>
                 </div>
@@ -160,9 +168,9 @@ const Profile = () => {
                                 />
                             </div>
                         </div>
-                        <button type="submit" className="btn-secondary">
+                        <button type="submit" className="btn-secondary" disabled={passwordLoading} style={{ opacity: passwordLoading ? 0.7 : 1, cursor: passwordLoading ? 'not-allowed' : 'pointer' }}>
                             <Lock size={18} />
-                            <span>Change Password</span>
+                            <span>{passwordLoading ? 'Changing...' : 'Change Password'}</span>
                         </button>
                     </form>
                 </div>

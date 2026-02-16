@@ -35,7 +35,7 @@ router.get('/', protect, async (req, res) => {
 
         const documents = await Document.find(query)
             .select('-encryptionKey -ipfsHash -fileHash') // Exclude sensitive data
-            .populate('owner', 'username email')
+            .populate('owner', 'username email walletAddress')
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(parseInt(limit));

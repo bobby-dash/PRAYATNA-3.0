@@ -7,17 +7,26 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await register(username, email, password);
-        if (result.success) {
-            toast.success('Registered successfully');
-            navigate('/dashboard');
-        } else {
-            toast.error(result.message);
+        setLoading(true);
+        try {
+            const result = await register(username, email, password);
+            if (result.success) {
+                toast.success('Registered successfully');
+                navigate('/dashboard');
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Registration failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -56,7 +65,9 @@ const Register = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>Register</button>
+                    <button type="submit" className="btn-primary" style={{ marginTop: '1rem', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }} disabled={loading}>
+                        {loading ? 'Registering...' : 'Register'}
+                    </button>
                     <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-secondary)' }}>
                         Already have an account? <a href="/login" style={{ color: 'var(--accent)' }}>Login</a>
                     </p>
